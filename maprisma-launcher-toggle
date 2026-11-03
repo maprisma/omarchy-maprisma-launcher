@@ -1,6 +1,6 @@
 #!/bin/sh
-# Open or close Maprisma Launcher (a separate app: AUR maprisma-launcher-bin or
-# the AppImage). The app keeps one window; --toggle shows it, or hides it when
+# Open or close Maprisma Launcher (a separate app, the AppImage from
+# github.com/maprisma/launcher/releases). The app keeps one window; --toggle shows it, or hides it when
 # it is shown and focused. Not installed: a plain-text note says how to get it.
 #
 # --dock (the bar widget, when the shell loads): start the app's optional dock.
@@ -21,6 +21,6 @@ fi
 if command -v notify-send >/dev/null 2>&1; then
   # -u normal, no markup in the text, no action that runs anything.
   exec notify-send -a "Maprisma Launcher" "Maprisma Launcher is not installed" \
-    "Install the AUR package maprisma-launcher-bin, or put the AppImage from github.com/maprisma/launcher/releases on your PATH as maprisma-launcher."
+    "Download the AppImage from github.com/maprisma/launcher/releases and put it on your PATH as maprisma-launcher (see the plugin README)."
 fi
 exit 1

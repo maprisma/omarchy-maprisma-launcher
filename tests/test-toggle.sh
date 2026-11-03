@@ -11,7 +11,7 @@ chmod +x "$work/with/maprisma-launcher" "$work/without/notify-send"
 PATH="$work/with" /bin/sh "$here/maprisma-launcher-toggle"
 [ "$(cat "$work/args")" = "--toggle" ] || { echo "FAIL: app args"; exit 1; }
 PATH="$work/without" /bin/sh "$here/maprisma-launcher-toggle"
-grep -q "maprisma-launcher-bin" "$work/note" || { echo "FAIL: no install note"; exit 1; }
+grep -q "github.com/maprisma/launcher/releases" "$work/note" || { echo "FAIL: no install note"; exit 1; }
 if PATH="/nonexistent" /bin/sh "$here/maprisma-launcher-toggle"; then echo "FAIL: should fail"; exit 1; fi
 # --dock: the app's dock; without the app nothing at all (no note at every shell start).
 PATH="$work/with" /bin/sh "$here/maprisma-launcher-toggle" --dock

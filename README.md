@@ -42,13 +42,18 @@ Right-click any app and choose **Shortcut…** to manage global Hyprland keybind
 
 ## Install
 
-This plugin provides the Omarchy bar icon and dock autostart hook. Install the **Maprisma Launcher** app first:
+This plugin provides the Omarchy bar icon and dock autostart hook. Install the **Maprisma Launcher** app first: the AppImage from the [GitHub release](https://github.com/maprisma/launcher/releases), checked against its SHA-256 and placed on your `PATH` as `maprisma-launcher`:
 
 ```sh
-yay -S maprisma-launcher-bin
+v=0.1.0; f=Maprisma-Launcher-$v-x86_64.AppImage
+cd "$(mktemp -d)"
+curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f"
+curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f.sha256"
+sha256sum -c "$f.sha256"
+install -Dm755 "$f" ~/.local/bin/maprisma-launcher
 ```
 
-or download the AppImage from <https://github.com/maprisma/launcher/releases>, make it executable, and place it on your `PATH` as `maprisma-launcher`.
+(AppImages need `fuse2`, which Omarchy ships. To remove the app: `rm ~/.local/bin/maprisma-launcher`.)
 
 Then add the bar plugin:
 

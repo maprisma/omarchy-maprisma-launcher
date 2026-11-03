@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "author": "Uwe Bruckhaus",
   "license": "MIT",
-  "description": "Theme-aware app launcher, AI package advisor, and shortcut manager for Omarchy: launch apps in folders, cards, icons or a 3D cube, control windows, assign global Hyprland shortcuts on a live owner-coloured key map, and Ask AI (Claude Code, Codex, Antigravity, Hermes, pi, or local LLMs via Ollama/llama.cpp) to find, install, update or hide apps. Includes an optional layer-shell dock. Maprisma for AI Management coming soon. (Requires maprisma-launcher-bin or AppImage.)",
+  "description": "Theme-aware app launcher, AI package advisor, and shortcut manager for Omarchy: launch apps in folders, cards, icons or a 3D cube, control windows, assign global Hyprland shortcuts on a live owner-coloured key map, and Ask AI (Claude Code, Codex, Antigravity, Hermes, pi, or local LLMs via Ollama/llama.cpp) to find, install, update or hide apps. Includes an optional layer-shell dock. Maprisma for AI Management coming soon. (Requires the Maprisma Launcher AppImage.)",
   "homepage": "https://github.com/maprisma/launcher",
   "repository": "https://github.com/maprisma/omarchy-maprisma-launcher",
   "keywords": [
