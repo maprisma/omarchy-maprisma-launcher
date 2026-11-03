@@ -10,6 +10,10 @@ BarWidget {
 
   readonly property string togglePath: Qt.resolvedUrl("maprisma-launcher-toggle").toString().replace(/^file:\/\//, "")
 
+  // The app's optional dock (Settings › Dock in the app): started with the shell. It quits at
+  // once when switched off, and a second start only makes a running dock re-read its settings.
+  Component.onCompleted: Quickshell.execDetached([root.togglePath, "--dock"])
+
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 

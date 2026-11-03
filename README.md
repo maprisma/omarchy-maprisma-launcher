@@ -31,7 +31,11 @@ Remove it again with `omarchy plugin remove ubruckhaus.maprisma-launcher` (the a
 
 `BarWidget.qml` runs `maprisma-launcher-toggle` on a click. The script starts `maprisma-launcher --toggle`
 (the app keeps a single window and shows or hides it). If the app is not installed, it shows a plain-text
-notification with the line above. The plugin installs nothing, starts no service, opens no network
+notification with the line above.
+
+When the shell loads, the widget also runs `maprisma-launcher-toggle --dock`: the app's optional dock
+(Settings › Dock in the app, off by default; it needs the `gtk-layer-shell` package). With the dock off the
+process ends at once; without the app nothing happens. The plugin installs nothing, starts no service, opens no network
 connection and takes no input.
 
 Its settings, groups and history are the app's (`~/.config/maprisma-launcher`). On its first start the app

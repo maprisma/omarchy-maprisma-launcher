@@ -2,9 +2,19 @@
 # Open or close Maprisma Launcher (a separate app: AUR maprisma-launcher-bin or
 # the AppImage). The app keeps one window; --toggle shows it, or hides it when
 # it is shown and focused. Not installed: a plain-text note says how to get it.
-# This script installs nothing and takes no input.
+#
+# --dock (the bar widget, when the shell loads): start the app's optional dock.
+# The dock quits at once when it is switched off in the app's Settings, and a
+# second start only makes a running dock re-read its settings. Not installed:
+# nothing happens (no note at every shell start).
+#
+# This script installs nothing and takes no other input.
 set -u
 app=$(command -v maprisma-launcher 2>/dev/null || true)
+if [ "${1:-}" = "--dock" ]; then
+  [ -n "$app" ] || exit 0
+  exec "$app" --dock
+fi
 if [ -n "$app" ]; then
   exec "$app" --toggle
 fi
