@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "ubruckhaus.maprisma-launcher",
+  "name": "Maprisma Launcher",
+  "version": "0.1.0",
+  "author": "Uwe Bruckhaus",
+  "license": "MIT",
+  "description": "A bar icon for Maprisma Launcher: all your apps in one theme-aware window. Type to launch, sort apps into groups or by origin, see sizes, updates and what is running, install and remove apps through the package managers you allow, and ask an optional AI helper for the right app. The app itself is installed separately (AUR maprisma-launcher-bin or the AppImage).",
+  "homepage": "https://github.com/maprisma/launcher",
+  "repository": "https://github.com/maprisma/omarchy-maprisma-launcher",
+  "keywords": [
+    "apps",
+    "launcher",
+    "maprisma",
+    "install",
+    "uninstall",
+    "groups",
+    "folders",
+    "updates",
+    "ai",
+    "omarchy"
+  ],
+  "kinds": [
+    "bar-widget"
+  ],
+  "keepLoaded": false,
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Maprisma Launcher",
+    "description": "Open or close Maprisma Launcher",
+    "category": "Compositor",
+    "allowMultiple": false,
+    "defaultSection": "left"
+  }
+}
