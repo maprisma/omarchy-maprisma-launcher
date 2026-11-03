@@ -13,4 +13,10 @@ PATH="$work/with:/usr/bin:/bin" "$here/maprisma-launcher-toggle"
 PATH="$work/without:/usr/bin:/bin" "$here/maprisma-launcher-toggle"
 grep -q "maprisma-launcher-bin" "$work/note" || { echo "FAIL: no install note"; exit 1; }
 if PATH="/nonexistent" /bin/sh "$here/maprisma-launcher-toggle"; then echo "FAIL: should fail"; exit 1; fi
+# --dock: the app's dock; without the app nothing at all (no note at every shell start).
+PATH="$work/with:/usr/bin:/bin" "$here/maprisma-launcher-toggle" --dock
+[ "$(cat "$work/args")" = "--dock" ] || { echo "FAIL: dock args"; exit 1; }
+rm -f "$work/note"
+PATH="$work/without:/usr/bin:/bin" "$here/maprisma-launcher-toggle" --dock || { echo "FAIL: dock without app"; exit 1; }
+[ ! -e "$work/note" ] || { echo "FAIL: a note for the dock"; exit 1; }
 echo "toggle: OK"
