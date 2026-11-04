@@ -15,10 +15,10 @@
 set -u
 umask 022
 
-VERSION=0.1.1
+VERSION=0.1.2
 FILE="Maprisma-Launcher-$VERSION-x86_64.AppImage"
 URL="https://github.com/maprisma/launcher/releases/download/v$VERSION/$FILE"
-SHA256=109dc7038e97a69b5e0c64f9db62799a7ea4955df2e629d6b6eb643e2f55383b
+SHA256=824566c8371630bab8a83c49cff4fb489262bbb46a75165a34914940136025de
 SIZE=10910200
 
 fail() { echo "error $1"; exit "${2:-1}"; }
@@ -39,7 +39,19 @@ mkdir -p "$BIN" || fail folder
 # A private work folder next to the target, so the last step is one link on
 # the same file system, which fails instead of replacing anything.
 WORK=$(mktemp -d "$BIN/.maprisma-launcher-install.XXXXXX") || fail folder
-trap 'rm -rf -- "$WORK"' EXIT HUP INT TERM
+CURL=
+cleanup() {
+  trap - EXIT HUP INT TERM
+  if [ -n "$CURL" ]; then
+    kill "$CURL" 2>/dev/null || true
+    wait "$CURL" 2>/dev/null || true
+  fi
+  rm -rf -- "$WORK"
+}
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 PART="$WORK/download"
 
 echo "step download"
@@ -51,7 +63,10 @@ while kill -0 "$CURL" 2>/dev/null; do
   echo "progress $(stat -c %s -- "$PART" 2>/dev/null || echo 0) $SIZE"
   sleep 0.4
 done
-wait "$CURL" || fail download
+wait "$CURL"
+curl_status=$?
+CURL=
+[ "$curl_status" -eq 0 ] || fail download
 echo "progress $SIZE $SIZE"
 
 echo "step verify"
@@ -59,6 +74,6 @@ echo "step verify"
 SUM=$(sha256sum -- "$PART" | cut -d' ' -f1)
 [ "$SUM" = "$SHA256" ] || fail checksum
 chmod 755 -- "$PART" || fail folder
-# ln (not mv): fails if something appeared at the target in the meantime.
-ln -- "$PART" "$TARGET" 2>/dev/null || fail exists
+# -T refuses a directory (or a symlink to one) that appeared during download.
+ln -T -- "$PART" "$TARGET" 2>/dev/null || fail exists
 echo "done $TARGET"

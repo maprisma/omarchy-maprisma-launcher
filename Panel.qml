@@ -25,7 +25,7 @@ Panel {
   readonly property string step: hostWidget ? hostWidget.installStep : ""
   readonly property real downloaded: hostWidget ? hostWidget.downloaded : 0
   readonly property real total: hostWidget ? hostWidget.total : 0
-  readonly property string version: "0.1.1"
+  readonly property string version: "0.1.2"
   readonly property string sizeMb: "10.9"
   function t(key, args) { return hostWidget ? hostWidget.t(key, args) : key }
   function mb(bytes) { return (Number(bytes || 0) / 1000000).toFixed(1) }

@@ -25,6 +25,7 @@ cat > "$work/bin/curl" <<FAKE
 printf '%s\n' "\$@" > "$work/curl-args"
 [ -f "$work/curl-fails" ] && exit 22
 while [ \$# -gt 0 ]; do [ "\$1" = --output ] && out=\$2; shift; done
+while [ -f "$work/curl-slow" ]; do sleep 0.05; done
 cp "\${PAYLOAD:-$work/payload}" "\$out"
 FAKE
 chmod +x "$work/bin/curl"
@@ -36,7 +37,7 @@ run > "$work/out" || { cat "$work/out"; fail "install"; }
 grep -qx "done $target" "$work/out" || fail "done line"
 grep -q "^progress " "$work/out" || fail "no progress"
 [ -x "$target" ] && cmp -s "$target" "$work/payload" || fail "target"
-grep -qx "https://github.com/maprisma/launcher/releases/download/v0.1.1/Maprisma-Launcher-0.1.1-x86_64.AppImage" "$work/curl-args" || fail "url"
+grep -qx "https://github.com/maprisma/launcher/releases/download/v0.1.2/Maprisma-Launcher-0.1.2-x86_64.AppImage" "$work/curl-args" || fail "url"
 for a in "--proto" "=https" "--proto-redir" "--max-filesize" "--max-time" "--fail"; do
   grep -qx -- "$a" "$work/curl-args" || fail "curl lacks $a"
 done
@@ -66,4 +67,27 @@ rm "$work/curl-fails"
 rm -f "$work/curl-args"
 set +e; run 'https://evil.example/x' > "$work/out"; code=$?; set -e
 [ "$code" = 2 ] && [ ! -e "$work/curl-args" ] || fail "took an argument"
+
+# 6. A cancelled download stops its child and removes its private stage.
+touch "$work/curl-slow"
+rm -f "$work/curl-args"
+HOME="$work/home" PATH="$work/bin:/usr/bin:/bin" sh "$work/install" > "$work/out" & install_pid=$!
+i=0; while [ ! -e "$work/curl-args" ] && [ "$i" -lt 100 ]; do sleep 0.05; i=$((i + 1)); done
+[ -e "$work/curl-args" ] || fail "slow curl did not start"
+kill -TERM "$install_pid"
+set +e; wait "$install_pid"; code=$?; set -e
+[ "$code" != 0 ] && [ ! -e "$target" ] && [ -z "$(ls -A "$work/home/.local/bin")" ] || fail "cancel left a stage"
+rm "$work/curl-slow"
+
+# 7. A directory arriving after the initial check is never populated.
+touch "$work/curl-slow"
+rm -f "$work/curl-args"
+HOME="$work/home" PATH="$work/bin:/usr/bin:/bin" sh "$work/install" > "$work/out" & install_pid=$!
+i=0; while [ ! -e "$work/curl-args" ] && [ "$i" -lt 100 ]; do sleep 0.05; i=$((i + 1)); done
+[ -e "$work/curl-args" ] || fail "race curl did not start"
+mkdir "$target"
+rm "$work/curl-slow"
+set +e; wait "$install_pid"; code=$?; set -e
+[ "$code" != 0 ] && grep -qx 'error exists' "$work/out" && [ -z "$(ls -A "$target")" ] || fail "linked inside target directory"
+rmdir "$target"
 echo "install: OK"

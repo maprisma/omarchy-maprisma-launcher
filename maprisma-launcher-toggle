@@ -30,10 +30,10 @@ if [ -n "$app" ] && ! { ldconfig -p | grep -q 'libfuse\.so\.2'; } 2>/dev/null; t
 fi
 if [ "${1:-}" = "--dock" ]; then
   [ -n "$app" ] || exit 0
-  exec "$app" --dock
+  exec /usr/bin/setsid -f -- "$app" --dock
 fi
 if [ -n "$app" ]; then
-  exec "$app" --toggle
+  exec /usr/bin/setsid -f -- "$app" --toggle
 fi
 if command -v notify-send >/dev/null 2>&1; then
   # -u normal, no markup in the text, no action that runs anything.
