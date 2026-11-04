@@ -1,0 +1,64 @@
+#!/bin/sh
+# Install the Maprisma Launcher app for the current user: the one AppImage
+# below, from the app's GitHub release, checked against the SHA-256 pinned
+# here, as ~/.local/bin/maprisma-launcher. Started only by the Install button
+# in the plugin's panel (BarWidget.qml → Panel.qml), never on its own.
+#
+# - One fixed HTTPS address (redirects only to HTTPS), a size and time limit.
+# - The file is kept only if its SHA-256 is the pinned one.
+# - Nothing is overwritten: if anything is at ~/.local/bin/maprisma-launcher
+#   already (a file, a link, a folder), it stops. No administrator rights.
+# - It takes no arguments and no other input.
+#
+# Output for the panel, one line each: "step download", "progress <bytes> <total>",
+# "step verify", "done <path>", or "error <code>" (exit code not 0).
+set -u
+umask 022
+
+VERSION=0.1.1
+FILE="Maprisma-Launcher-$VERSION-x86_64.AppImage"
+URL="https://github.com/maprisma/launcher/releases/download/v$VERSION/$FILE"
+SHA256=109dc7038e97a69b5e0c64f9db62799a7ea4955df2e629d6b6eb643e2f55383b
+SIZE=10910200
+
+fail() { echo "error $1"; exit "${2:-1}"; }
+
+[ "$#" -eq 0 ] || fail usage 2
+[ "$(uname -m)" = x86_64 ] || fail arch
+case "${HOME:-}" in /*) ;; *) fail home ;; esac
+command -v curl >/dev/null 2>&1 || fail curl
+command -v sha256sum >/dev/null 2>&1 || fail sha256sum
+
+BIN="$HOME/.local/bin"
+TARGET="$BIN/maprisma-launcher"
+# -e misses a dangling link; -L catches it.
+if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then fail exists; fi
+mkdir -p "$BIN" || fail folder
+[ -d "$BIN" ] && [ ! -L "$BIN" ] || fail folder
+
+# A private work folder next to the target, so the last step is one link on
+# the same file system, which fails instead of replacing anything.
+WORK=$(mktemp -d "$BIN/.maprisma-launcher-install.XXXXXX") || fail folder
+trap 'rm -rf -- "$WORK"' EXIT HUP INT TERM
+PART="$WORK/download"
+
+echo "step download"
+curl --proto =https --proto-redir =https --tlsv1.2 --fail --location --max-redirs 5 \
+  --connect-timeout 20 --max-time 600 --max-filesize $((SIZE + 1)) \
+  --silent --show-error --output "$PART" -- "$URL" 2>"$WORK/curl.log" &
+CURL=$!
+while kill -0 "$CURL" 2>/dev/null; do
+  echo "progress $(stat -c %s -- "$PART" 2>/dev/null || echo 0) $SIZE"
+  sleep 0.4
+done
+wait "$CURL" || fail download
+echo "progress $SIZE $SIZE"
+
+echo "step verify"
+[ "$(stat -c %s -- "$PART")" = "$SIZE" ] || fail checksum
+SUM=$(sha256sum -- "$PART" | cut -d' ' -f1)
+[ "$SUM" = "$SHA256" ] || fail checksum
+chmod 755 -- "$PART" || fail folder
+# ln (not mv): fails if something appeared at the target in the meantime.
+ln -- "$PART" "$TARGET" 2>/dev/null || fail exists
+echo "done $TARGET"

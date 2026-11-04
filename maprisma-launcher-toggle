@@ -1,16 +1,33 @@
 #!/bin/sh
 # Open or close Maprisma Launcher (a separate app, the AppImage from
 # github.com/maprisma/launcher/releases). The app keeps one window; --toggle shows it, or hides it when
-# it is shown and focused. Not installed: a plain-text note says how to get it.
+# it is shown and focused.
+#
+# --check (the bar widget, on a click): exit 0 when the app is installed, 3 when
+# not; the widget then shows its install panel instead (maprisma-launcher-install).
 #
 # --dock (the bar widget, when the shell loads): start the app's optional dock.
 # The dock quits at once when it is switched off in the app's Settings, and a
 # second start only makes a running dock re-read its settings. Not installed:
-# nothing happens (no note at every shell start).
+# nothing happens.
 #
 # This script installs nothing and takes no other input.
 set -u
 app=$(command -v maprisma-launcher 2>/dev/null || true)
+# Installed by the panel but ~/.local/bin not on the shell's PATH.
+if [ -z "$app" ] && [ -x "${HOME:-/nonexistent}/.local/bin/maprisma-launcher" ]; then
+  app="$HOME/.local/bin/maprisma-launcher"
+fi
+case "${1:-}" in
+  --check)
+    [ -n "$app" ] && exit 0
+    exit 3
+    ;;
+esac
+# Without FUSE 2 an AppImage still runs by unpacking itself first.
+if [ -n "$app" ] && ! { ldconfig -p | grep -q 'libfuse\.so\.2'; } 2>/dev/null; then
+  export APPIMAGE_EXTRACT_AND_RUN=1
+fi
 if [ "${1:-}" = "--dock" ]; then
   [ -n "$app" ] || exit 0
   exec "$app" --dock
@@ -21,6 +38,6 @@ fi
 if command -v notify-send >/dev/null 2>&1; then
   # -u normal, no markup in the text, no action that runs anything.
   exec notify-send -a "Maprisma Launcher" "Maprisma Launcher is not installed" \
-    "Download the AppImage from github.com/maprisma/launcher/releases and put it on your PATH as maprisma-launcher (see the plugin README)."
+    "Click the Maprisma Launcher icon in the bar to install it."
 fi
 exit 1

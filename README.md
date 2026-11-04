@@ -42,10 +42,24 @@ Right-click any app and choose **Shortcut…** to manage global Hyprland keybind
 
 ## Install
 
-This plugin provides the Omarchy bar icon and dock autostart hook. Install the **Maprisma Launcher** app first: the AppImage from the [GitHub release](https://github.com/maprisma/launcher/releases), checked against its SHA-256 and placed on your `PATH` as `maprisma-launcher`:
+Add the plugin:
 
 ```sh
-v=0.1.0; f=Maprisma-Launcher-$v-x86_64.AppImage
+omarchy plugin add https://github.com/maprisma/omarchy-maprisma-launcher
+```
+
+Then **click the Maprisma Launcher icon in the bar**. The app is not there yet, so a small panel opens instead:
+
+1. Click **Install Maprisma Launcher**. The panel downloads the official AppImage (version 0.1.1, 10.9 MB) from the [GitHub release](https://github.com/maprisma/launcher/releases), shows the progress and checks its SHA-256 fingerprint.
+2. Click **Open Maprisma Launcher**. From now on, the bar icon opens and closes the app.
+
+No administrator rights are needed: the app is saved for your user only, as `~/.local/bin/maprisma-launcher`. Without FUSE 2 the AppImage still runs (it unpacks itself first).
+
+<details>
+<summary>Install the app by hand instead</summary>
+
+```sh
+v=0.1.1; f=Maprisma-Launcher-$v-x86_64.AppImage
 cd "$(mktemp -d)"
 curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f"
 curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f.sha256"
@@ -53,15 +67,9 @@ sha256sum -c "$f.sha256"
 install -Dm755 "$f" ~/.local/bin/maprisma-launcher
 ```
 
-(AppImages need `fuse2`, which Omarchy ships. To remove the app: `rm ~/.local/bin/maprisma-launcher`.)
+</details>
 
-Then add the bar plugin:
-
-```sh
-omarchy plugin add https://github.com/maprisma/omarchy-maprisma-launcher
-```
-
-Remove the plugin anytime with:
+To remove the app: `rm ~/.local/bin/maprisma-launcher` (your settings stay in `~/.config/maprisma-launcher`). To remove the plugin:
 
 ```sh
 omarchy plugin remove ubruckhaus.maprisma-launcher
@@ -73,9 +81,15 @@ omarchy plugin remove ubruckhaus.maprisma-launcher
 
 ## What the plugin does
 
-`BarWidget.qml` runs `maprisma-launcher-toggle` when clicked. The script invokes `maprisma-launcher --toggle` (the app keeps a single window and shows or hides it). If the app is not installed yet, it displays a plain-text desktop notification with the install instruction above.
+A click on the bar icon runs `maprisma-launcher-toggle --check`. When the app is installed, `maprisma-launcher-toggle` invokes `maprisma-launcher --toggle` (the app keeps a single window and shows or hides it). When it is not, the widget opens its install panel (`Panel.qml`).
 
-When the shell starts, the widget also runs `maprisma-launcher-toggle --dock` to launch the optional dock if enabled in **Settings › Dock** (off by default; requires the `gtk-layer-shell` package). With the dock disabled, the process exits immediately; without the app installed, nothing happens. The plugin itself installs nothing, starts no background daemon, opens no network connection, and takes no user input.
+**Installer (only on the panel's Install button):** `maprisma-launcher-install` downloads one fixed file, `https://github.com/maprisma/launcher/releases/download/v0.1.1/Maprisma-Launcher-0.1.1-x86_64.AppImage`, with `curl` (HTTPS only, also for redirects; size and time limits). It keeps the file only if its size and SHA-256 match the values pinned in the script, and places it as `~/.local/bin/maprisma-launcher` with a hard link that fails instead of replacing anything: if a file, link or folder is already there, nothing is changed. It takes no arguments, never asks for root or administrator rights, and leaves nothing behind on failure. This is the plugin's only network access, and it happens only after that click.
+
+When the shell starts, the widget also runs `maprisma-launcher-toggle --dock` to launch the optional dock if enabled in **Settings › Dock** (off by default; requires the `gtk-layer-shell` package). With the dock disabled, the process exits immediately; without the app installed, nothing happens. The plugin starts no background daemon and takes no text input.
+
+## Languages
+
+The install panel follows the system language (English, German, French, Spanish, Italian, Portuguese, Dutch, Polish), with English as the fallback. The app has its own language setting.
 
 All settings, groups, and history belong to the app (`~/.config/maprisma-launcher`). On first run, the app imports existing groups and settings from the older App Manager plugin if present, leaving the old files untouched.
 
