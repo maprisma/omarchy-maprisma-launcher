@@ -91,3 +91,7 @@ set +e; wait "$install_pid"; code=$?; set -e
 [ "$code" != 0 ] && grep -qx 'error exists' "$work/out" && [ -z "$(ls -A "$target")" ] || fail "linked inside target directory"
 rmdir "$target"
 echo "install: OK"
+
+# The README's manual install checks the same pinned SHA-256 as the installer.
+pinned=$(sed -n 's/^SHA256=//p' "$here/maprisma-launcher-install")
+grep -q "echo \"$pinned  \$f\" | sha256sum -c" "$here/README.md" || fail "readme sha"

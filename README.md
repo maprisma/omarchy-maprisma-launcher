@@ -62,9 +62,8 @@ No administrator rights are needed: the app is saved for your user only, as `~/.
 v=0.1.3; f=Maprisma-Launcher-$v-x86_64.AppImage
 cd "$(mktemp -d)"
 curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f"
-curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f.sha256"
-sha256sum -c "$f.sha256"
-install -Dm755 "$f" ~/.local/bin/maprisma-launcher
+echo "88b092e79c9186653f01912237282c46b174f7bfa7b3bffab86dab586578ae31  $f" | sha256sum -c
+[ ! -e ~/.local/bin/maprisma-launcher ] && [ ! -L ~/.local/bin/maprisma-launcher ] && install -Dm755 "$f" ~/.local/bin/maprisma-launcher
 ```
 
 </details>
