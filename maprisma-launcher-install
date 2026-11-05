@@ -15,11 +15,11 @@
 set -u
 umask 022
 
-VERSION=0.1.2
+VERSION=0.1.3
 FILE="Maprisma-Launcher-$VERSION-x86_64.AppImage"
 URL="https://github.com/maprisma/launcher/releases/download/v$VERSION/$FILE"
-SHA256=824566c8371630bab8a83c49cff4fb489262bbb46a75165a34914940136025de
-SIZE=10910200
+SHA256=88b092e79c9186653f01912237282c46b174f7bfa7b3bffab86dab586578ae31
+SIZE=10922488
 
 fail() { echo "error $1"; exit "${2:-1}"; }
 

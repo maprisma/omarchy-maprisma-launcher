@@ -50,7 +50,7 @@ omarchy plugin add https://github.com/maprisma/omarchy-maprisma-launcher
 
 Then **click the Maprisma Launcher icon in the bar**. The app is not there yet, so a small panel opens instead:
 
-1. Click **Install Maprisma Launcher**. The panel downloads the official AppImage (version 0.1.2, 10.9 MB) from the [GitHub release](https://github.com/maprisma/launcher/releases), shows the progress and checks its SHA-256 fingerprint.
+1. Click **Install Maprisma Launcher**. The panel downloads the official AppImage (version 0.1.3, 10.9 MB) from the [GitHub release](https://github.com/maprisma/launcher/releases), shows the progress and checks its SHA-256 fingerprint.
 2. Click **Open Maprisma Launcher**. From now on, the bar icon opens and closes the app.
 
 No administrator rights are needed: the app is saved for your user only, as `~/.local/bin/maprisma-launcher`. Without FUSE 2 the AppImage still runs (it unpacks itself first).
@@ -59,7 +59,7 @@ No administrator rights are needed: the app is saved for your user only, as `~/.
 <summary>Install the app by hand instead</summary>
 
 ```sh
-v=0.1.2; f=Maprisma-Launcher-$v-x86_64.AppImage
+v=0.1.3; f=Maprisma-Launcher-$v-x86_64.AppImage
 cd "$(mktemp -d)"
 curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f"
 curl -fLO "https://github.com/maprisma/launcher/releases/download/v$v/$f.sha256"
@@ -83,7 +83,7 @@ omarchy plugin remove ubruckhaus.maprisma-launcher
 
 A click on the bar icon runs `maprisma-launcher-toggle --check`. When the app is installed, `maprisma-launcher-toggle` invokes `maprisma-launcher --toggle` (the app keeps a single window and shows or hides it). When it is not, the widget opens its install panel (`Panel.qml`).
 
-**Installer (only on the panel's Install button):** `maprisma-launcher-install` downloads one fixed file, `https://github.com/maprisma/launcher/releases/download/v0.1.2/Maprisma-Launcher-0.1.2-x86_64.AppImage`, with `curl` (HTTPS only, also for redirects; size and time limits). It keeps the file only if its size and SHA-256 match the values pinned in the script, and places it as `~/.local/bin/maprisma-launcher` with a hard link that fails instead of replacing anything: if a file, link or folder is already there, nothing is changed. It takes no arguments and never asks for root or administrator rights. Failed downloads and normal interruptions clean up the temporary file; an uncatchable kill may leave a temporary folder. This is the plugin's only network access, and it happens only after that click.
+**Installer (only on the panel's Install button):** `maprisma-launcher-install` downloads one fixed file, `https://github.com/maprisma/launcher/releases/download/v0.1.3/Maprisma-Launcher-0.1.3-x86_64.AppImage`, with `curl` (HTTPS only, also for redirects; size and time limits). It keeps the file only if its size and SHA-256 match the values pinned in the script, and places it as `~/.local/bin/maprisma-launcher` with a hard link that fails instead of replacing anything: if a file, link or folder is already there, nothing is changed. It takes no arguments and never asks for root or administrator rights. Failed downloads and normal interruptions clean up the temporary file; an uncatchable kill may leave a temporary folder. This is the plugin's only network access, and it happens only after that click.
 
 When the shell starts, the widget also runs `maprisma-launcher-toggle --dock` to launch the optional dock if enabled in **Settings › Dock** (off by default; requires the `gtk-layer-shell` package). With the dock disabled, the process exits immediately; without the app installed, nothing happens. The plugin starts no background daemon and takes no text input.
 

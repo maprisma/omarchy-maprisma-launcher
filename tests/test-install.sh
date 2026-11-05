@@ -37,7 +37,7 @@ run > "$work/out" || { cat "$work/out"; fail "install"; }
 grep -qx "done $target" "$work/out" || fail "done line"
 grep -q "^progress " "$work/out" || fail "no progress"
 [ -x "$target" ] && cmp -s "$target" "$work/payload" || fail "target"
-grep -qx "https://github.com/maprisma/launcher/releases/download/v0.1.2/Maprisma-Launcher-0.1.2-x86_64.AppImage" "$work/curl-args" || fail "url"
+grep -qx "https://github.com/maprisma/launcher/releases/download/v0.1.3/Maprisma-Launcher-0.1.3-x86_64.AppImage" "$work/curl-args" || fail "url"
 for a in "--proto" "=https" "--proto-redir" "--max-filesize" "--max-time" "--fail"; do
   grep -qx -- "$a" "$work/curl-args" || fail "curl lacks $a"
 done
