@@ -34,9 +34,9 @@ Right-click any app and choose **Shortcut…** to manage global Hyprland keybind
 
 ---
 
-## ✦ Coming Soon: Maprisma for AI Management
+## ✦ Part of Maprisma
 
-**Maprisma Launcher** is the first companion in the **Maprisma** desktop suite for Omarchy. Coming soon: **Maprisma** — a dedicated visual control centre for managing AI coding agents, cloud providers, local LLM servers (`llama.cpp` / Ollama), MCP servers, skills, rules, and live token/VRAM telemetry across your Omarchy workstation.
+**Maprisma Launcher** is a companion of **[Maprisma](https://github.com/maprisma/maprisma)**: a visual map of your AI coding agents, cloud providers, local LLMs (llama.cpp, Ollama, Strata and more), models, MCP servers and skills on Omarchy. You connect them by drawing lines, and each change shows a preview and can be undone. Add it to the bar the same way: `omarchy plugin add https://github.com/maprisma/omarchy-maprisma`.
 
 ---
 
