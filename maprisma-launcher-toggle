@@ -14,9 +14,16 @@
 # This script installs nothing and takes no other input.
 set -u
 app=$(command -v maprisma-launcher 2>/dev/null || true)
-# Installed by the panel but ~/.local/bin not on the shell's PATH.
-if [ -z "$app" ] && [ -x "${HOME:-/nonexistent}/.local/bin/maprisma-launcher" ]; then
-  app="$HOME/.local/bin/maprisma-launcher"
+# Installed by the panel but ~/.local/bin not on the shell's PATH: used only
+# when the installer would accept the folder (ours, written only by us, no
+# symlink or folder others may change above it) and the file is our own
+# regular file, not a link.
+if [ -z "$app" ] && [ -n "${HOME:-}" ]; then
+  fallback="$HOME/.local/bin/maprisma-launcher"
+  if [ -f "$fallback" ] && [ ! -L "$fallback" ] && [ -O "$fallback" ] && [ -x "$fallback" ] &&
+    . "${0%/*}/folder-checks.sh" && private_tree "$HOME/.local/bin" && no_shared_write "$fallback"; then
+    app=$fallback
+  fi
 fi
 case "${1:-}" in
   --check)

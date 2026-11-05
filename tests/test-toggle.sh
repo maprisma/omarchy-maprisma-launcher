@@ -8,6 +8,8 @@ here=$(cd "$(dirname "$0")/.." && pwd)
 work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
 export HOME="$work/home"
 mkdir -p "$HOME" "$work/with" "$work/without"
+# The folder checks need these; "without" means without the app only.
+for tool in stat id; do ln -s "$(command -v "$tool")" "$work/without/$tool"; done
 printf '#!/bin/sh\nprintf "%%s\\n" "$@" > "%s/args"\n/usr/bin/ps -o sid= -p $$ > "%s/app-sid"\n' "$work" "$work" > "$work/with/maprisma-launcher"
 printf '#!/bin/sh\nprintf "%%s\\n" "$@" > "%s/note"\n' "$work" > "$work/without/notify-send"
 chmod +x "$work/with/maprisma-launcher" "$work/without/notify-send"
@@ -42,4 +44,16 @@ rm -f "$work/args"
 PATH="$work/without" /bin/sh "$here/maprisma-launcher-toggle"
 wait_args
 [ "$(cat "$work/args")" = "--toggle" ] || { echo "FAIL: ~/.local/bin app args"; exit 1; }
+# ... but not from a ~/.local/bin others may write to, nor through a symlinked home, nor a link.
+chmod 777 "$HOME/.local/bin"
+set +e; PATH="$work/without" /bin/sh "$here/maprisma-launcher-toggle" --check; code=$?; set -e
+[ "$code" = 3 ] || { echo "FAIL: shared ~/.local/bin trusted ($code)"; exit 1; }
+chmod 755 "$HOME/.local/bin"
+ln -s "$HOME" "$work/home-link"
+set +e; HOME="$work/home-link" PATH="$work/without" /bin/sh "$here/maprisma-launcher-toggle" --check; code=$?; set -e
+[ "$code" = 3 ] || { echo "FAIL: symlinked home trusted ($code)"; exit 1; }
+mv "$HOME/.local/bin/maprisma-launcher" "$work/real-app"; ln -s "$work/real-app" "$HOME/.local/bin/maprisma-launcher"
+set +e; PATH="$work/without" /bin/sh "$here/maprisma-launcher-toggle" --check; code=$?; set -e
+[ "$code" = 3 ] || { echo "FAIL: linked app trusted ($code)"; exit 1; }
+rm "$HOME/.local/bin/maprisma-launcher"; mv "$work/real-app" "$HOME/.local/bin/maprisma-launcher"
 echo "toggle: OK"

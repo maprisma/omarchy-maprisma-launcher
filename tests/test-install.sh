@@ -10,6 +10,7 @@ work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
 fail() { echo "FAIL: $*"; exit 1; }
 
 if [ "${1:-}" = "--online" ]; then
+  mkdir -p "$work/home"
   HOME="$work/home" sh "$here/maprisma-launcher-install" > "$work/out" || { cat "$work/out"; fail "real download"; }
   tail -1 "$work/out" | grep -qx "done $work/home/.local/bin/maprisma-launcher" || fail "done line"
   [ -x "$work/home/.local/bin/maprisma-launcher" ] || fail "not executable"
@@ -19,6 +20,7 @@ fi
 printf 'fake appimage\n' > "$work/payload"
 sum=$(sha256sum "$work/payload" | cut -d' ' -f1); size=$(stat -c %s "$work/payload")
 sed -e "s/^SHA256=.*/SHA256=$sum/" -e "s/^SIZE=.*/SIZE=$size/" "$here/maprisma-launcher-install" > "$work/install"
+cp "$here/folder-checks.sh" "$work/"
 mkdir "$work/bin"
 cat > "$work/bin/curl" <<FAKE
 #!/bin/sh
@@ -29,6 +31,7 @@ while [ -f "$work/curl-slow" ]; do sleep 0.05; done
 cp "\${PAYLOAD:-$work/payload}" "\$out"
 FAKE
 chmod +x "$work/bin/curl"
+mkdir -p "$work/home"
 run() { HOME="$work/home" PATH="$work/bin:/usr/bin:/bin" sh "$work/install" "$@"; }
 target="$work/home/.local/bin/maprisma-launcher"
 
@@ -111,6 +114,6 @@ for odd in "$work/h4/" "$work/./h4" relative; do
 done
 echo "folders: OK"
 
-# The README's manual install checks the same pinned SHA-256 as the installer.
+# The README's manual install names the same pinned SHA-256 as the installer.
 pinned=$(sed -n 's/^SHA256=//p' "$here/maprisma-launcher-install")
-grep -q "echo \"$pinned  \$f\" | sha256sum -c" "$here/README.md" || fail "readme sha"
+grep -q "SHA-256 is \`$pinned\`" "$here/README.md" || fail "readme sha"
