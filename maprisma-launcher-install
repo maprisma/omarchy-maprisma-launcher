@@ -29,12 +29,54 @@ case "${HOME:-}" in /*) ;; *) fail home ;; esac
 command -v curl >/dev/null 2>&1 || fail curl
 command -v sha256sum >/dev/null 2>&1 || fail sha256sum
 
+for tool in stat id dirname; do command -v "$tool" >/dev/null 2>&1 || fail "$tool"; done
+uid=$(id -u)
+# Group and other digits of a mode: none may allow writing.
+no_shared_write() {
+  mode=$(stat -c '%a' -- "$1") || return 1
+  other=${mode#"${mode%?}"}
+  group=${mode%?}
+  group=${group#"${group%?}"}
+  case "$group$other" in *[2367]*) return 1 ;; esac
+}
+# The folder itself: a real directory (no symlink), ours, written only by us.
+private_dir() {
+  [ -d "$1" ] && [ ! -L "$1" ] && [ -O "$1" ] && no_shared_write "$1"
+}
+# A folder above it: a real directory (never a symlink), ours or root's and not
+# writable by group or others, or root's with the sticky bit (like /tmp).
+stable_dir() {
+  [ -d "$1" ] && [ ! -L "$1" ] || return 1
+  owner=$(stat -c '%u' -- "$1") || return 1
+  [ "$owner" = "$uid" ] || [ "$owner" = 0 ] || return 1
+  no_shared_write "$1" && return 0
+  mode=$(stat -c '%a' -- "$1") || return 1
+  [ "$owner" = 0 ] && [ ${#mode} -eq 4 ] && case "$mode" in [1357]*) true ;; *) false ;; esac
+}
+# An absolute, normalised path (no trailing slash, //, . or ..), private, with
+# every folder above it stable up to /.
+private_tree() {
+  case "$1" in /?*) ;; *) return 1 ;; esac
+  case "$1" in */ | *//* | */./* | */../* | */. | */..) return 1 ;; esac
+  private_dir "$1" || return 1
+  here=$1
+  while :; do
+    up=$(dirname -- "$here")
+    [ "$up" != "$here" ] || return 1
+    stable_dir "$up" || return 1
+    [ "$up" = / ] && return 0
+    here=$up
+  done
+}
+
 BIN="$HOME/.local/bin"
 TARGET="$BIN/maprisma-launcher"
 # -e misses a dangling link; -L catches it.
 if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then fail exists; fi
 mkdir -p "$BIN" || fail folder
-[ -d "$BIN" ] && [ ! -L "$BIN" ] || fail folder
+# Only this user may change ~/.local/bin and nobody else may rename anything
+# above it, so the checked file cannot be swapped before it is linked.
+private_tree "$BIN" || fail folder
 
 # A private work folder next to the target, so the last step is one link on
 # the same file system, which fails instead of replacing anything.

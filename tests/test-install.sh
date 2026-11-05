@@ -92,6 +92,25 @@ set +e; wait "$install_pid"; code=$?; set -e
 rmdir "$target"
 echo "install: OK"
 
+# Folders others could change are refused before anything is written: a shared
+# ~/.local/bin, a shared ~/.local above it, a home reached through a symlink.
+runh() { HOME="$1" PATH="$work/bin:/usr/bin:/bin" sh "$work/install"; }
+mkdir -p "$work/h1/.local/bin"; chmod 777 "$work/h1/.local/bin"
+runh "$work/h1" > "$work/out" && fail "shared bin accepted"
+grep -qx 'error folder' "$work/out" && [ -z "$(ls -A "$work/h1/.local/bin")" ] || fail "shared bin written"
+[ "$(stat -c %a "$work/h1/.local/bin")" = 777 ] || fail "shared bin mode changed"
+mkdir -p "$work/h2/.local/bin"; chmod 777 "$work/h2/.local"
+runh "$work/h2" > "$work/out" && fail "shared .local accepted"
+[ -z "$(ls -A "$work/h2/.local/bin")" ] || fail "shared .local written"
+mkdir -p "$work/h3/.local/bin"; ln -s "$work/h3" "$work/h3-link"
+runh "$work/h3-link" > "$work/out" && fail "symlinked home accepted"
+[ -z "$(ls -A "$work/h3/.local/bin")" ] || fail "symlinked home written"
+for odd in "$work/h4/" "$work/./h4" relative; do
+  mkdir -p "$work/h4"
+  runh "$odd" > "$work/out" && fail "odd home $odd accepted"
+done
+echo "folders: OK"
+
 # The README's manual install checks the same pinned SHA-256 as the installer.
 pinned=$(sed -n 's/^SHA256=//p' "$here/maprisma-launcher-install")
 grep -q "echo \"$pinned  \$f\" | sha256sum -c" "$here/README.md" || fail "readme sha"
