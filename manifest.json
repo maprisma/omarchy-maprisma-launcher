@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "ubruckhaus.maprisma-launcher",
   "name": "Maprisma Launcher",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "author": "Uwe Bruckhaus",
   "license": "MIT",
   "description": "App launcher, AI package advisor and shortcut manager for Omarchy, part of Maprisma: launch apps in folders, cards, icons or a 3D cube, control windows, set global Hyprland shortcuts on a live owner-coloured key map, and Ask AI (Claude Code, Codex, Antigravity, Hermes, pi or local LLMs) to find, install, update or hide apps. Checks pacman, AUR, Flatpak and AppImage updates; Settings with Find; optional dock. A bar click installs the checked AppImage when the app is missing.",

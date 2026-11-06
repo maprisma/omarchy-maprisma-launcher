@@ -26,7 +26,9 @@ Panel {
   readonly property real downloaded: hostWidget ? hostWidget.downloaded : 0
   readonly property real total: hostWidget ? hostWidget.total : 0
   readonly property string version: "0.1.4"
-  readonly property string sizeMb: "10.9"
+  // The same version and size as maprisma-launcher-install pins (tests/test-install.sh checks both).
+  readonly property real sizeBytes: 11041272
+  readonly property string sizeMb: mb(sizeBytes)
   function t(key, args) { return hostWidget ? hostWidget.t(key, args) : key }
   function mb(bytes) { return (Number(bytes || 0) / 1000000).toFixed(1) }
   function errorText(code) {
@@ -112,7 +114,7 @@ Panel {
               font.pixelSize: Style.font.caption
               text: root.step === "verify"
                 ? root.t("verifying")
-                : root.t("downloading", [root.mb(root.downloaded), root.mb(root.total || 11041272)])
+                : root.t("downloading", [root.mb(root.downloaded), root.mb(root.total || root.sizeBytes)])
             }
             Rectangle {
               anchors.bottom: parent.bottom

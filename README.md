@@ -55,7 +55,7 @@ Then **click the Maprisma Launcher icon in the bar**. The app is not there yet, 
 
 No administrator rights are needed: the app is saved for your user only, as `~/.local/bin/maprisma-launcher`. Without FUSE 2 the AppImage still runs (it unpacks itself first).
 
-Prefer to install it yourself? Download `Maprisma-Launcher-0.1.4-x86_64.AppImage` from the [release page](https://github.com/maprisma/launcher/releases/tag/v0.1.4), check that its SHA-256 is `cd0530768dcd3d54528adbf8237b6999e1facab4dd6af58a1303780a70715dca`, and put it on your `PATH` as `maprisma-launcher` in a folder only you can change.
+Prefer to install it yourself? Download `Maprisma-Launcher-0.1.4-x86_64.AppImage` from the [release page](https://github.com/maprisma/launcher/releases/tag/v0.1.4), check that its SHA-256 is `cd0530768dcd3d54528adbf8237b6999e1facab4dd6af58a1303780a70715dca`, make it executable (`chmod +x Maprisma-Launcher-0.1.4-x86_64.AppImage`), and put it on your `PATH` as `maprisma-launcher` in a folder only you can change.
 
 To remove the app: `rm ~/.local/bin/maprisma-launcher` (your settings stay in `~/.config/maprisma-launcher`). To remove the plugin:
 

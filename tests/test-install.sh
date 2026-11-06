@@ -117,3 +117,9 @@ echo "folders: OK"
 # The README's manual install names the same pinned SHA-256 as the installer.
 pinned=$(sed -n 's/^SHA256=//p' "$here/maprisma-launcher-install")
 grep -q "SHA-256 is \`$pinned\`" "$here/README.md" || fail "readme sha"
+
+# The panel shows the version and size the installer pins.
+pinned_version=$(sed -n 's/^VERSION=//p' "$here/maprisma-launcher-install")
+pinned_size=$(sed -n 's/^SIZE=//p' "$here/maprisma-launcher-install")
+grep -q "property string version: \"$pinned_version\"" "$here/Panel.qml" || fail "panel version"
+grep -q "property real sizeBytes: $pinned_size\$" "$here/Panel.qml" || fail "panel size"
