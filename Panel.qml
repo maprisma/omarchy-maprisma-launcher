@@ -49,6 +49,9 @@ Panel {
     font.pixelSize: Style.font.bodySmall
   }
 
+  // See-through with the window style (Theme Manager → Settings).
+  PopupGlass { inside: keyCatcher; active: panel.open }
+
   KeyboardPanel {
     id: panel
     anchorItem: root.anchorItem
